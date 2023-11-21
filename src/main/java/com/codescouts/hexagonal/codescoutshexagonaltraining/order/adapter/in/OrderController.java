@@ -1,9 +1,24 @@
 package com.codescouts.hexagonal.codescoutshexagonaltraining.order.adapter.in;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.adapter.in.requests.CheckoutOrderRequest;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.adapter.in.responses.CheckoutResponse;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.adapter.in.responses.GetOrderResponse;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.application.services.OrderRepository;
+import com.codescouts.hexagonal.codescoutshexagonaltraining.order.application.usecase.AddOrderUseCase;
+import com.codescouts.hexagonal.codescoutshexagonaltraining.order.application.usecase.GetOrderUseCase;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.commands.OrderProductLine;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.entities.Customer;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.entities.Order;
@@ -12,13 +27,6 @@ import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.excepti
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.exceptions.PaymentErrorException;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.exceptions.StockIsNotEnoughException;
 import com.codescouts.hexagonal.codescoutshexagonaltraining.order.domain.services.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -26,12 +34,18 @@ public class OrderController {
 
     private final OrderRepository orderRepository;
     private final PaymentService paymentService;
+    private final GetOrderUseCase getOrderUseCase;
+    private final AddOrderUseCase addOrderUseCase;
 
     @Autowired
     public OrderController(PaymentService paymentService,
-                           OrderRepository orderRepository) {
+                           OrderRepository orderRepository,
+                           GetOrderUseCase getOrderUseCase,
+                           AddOrderUseCase addOrderUseCase) {
         this.paymentService = paymentService;
         this.orderRepository = orderRepository;
+        this.getOrderUseCase = getOrderUseCase;
+        this.addOrderUseCase = addOrderUseCase;
     }
 
     @GetMapping("/{orderId}")
